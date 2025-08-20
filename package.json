@@ -8,6 +8,8 @@
     "start": "next start"
   },
   "dependencies": {
+    "chart": "^0.1.2",
+    "chart.js": "^4.5.0",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
     "next": "15.5.0",
