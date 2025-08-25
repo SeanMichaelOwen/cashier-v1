@@ -153,6 +153,9 @@ export default function KasirApp() {
   // State for storage location
   const [storageLocation, setStorageLocation] = useState('localStorage');
   
+  // State for mobile menu
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   // State for Kasir
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -2345,12 +2348,12 @@ export default function KasirApp() {
   
   const calculatePaidDebts = () => {
     return debts.filter(debt => debt.status === 'paid')
-      .reduce((total, debt) => total + (debt.amount || 0), 0);
+      .reduce((sum, debt) => sum + (debt.amount || 0), 0);
   };
   
   const calculateUnpaidDebts = () => {
     return debts.filter(debt => debt.status === 'unpaid')
-      .reduce((total, debt) => total + (debt.amount || 0), 0);
+      .reduce((sum, debt) => sum + (debt.amount || 0), 0);
   };
   
   const addReceivable = () => {
@@ -2393,12 +2396,12 @@ export default function KasirApp() {
   
   const calculatePaidReceivables = () => {
     return receivables.filter(receivable => receivable.status === 'paid')
-      .reduce((total, receivable) => total + (receivable.amount || 0), 0);
+      .reduce((sum, receivable) => sum + (receivable.amount || 0), 0);
   };
   
   const calculateUnpaidReceivables = () => {
     return receivables.filter(receivable => receivable.status === 'unpaid')
-      .reduce((total, receivable) => total + (receivable.amount || 0), 0);
+      .reduce((sum, receivable) => sum + (receivable.amount || 0), 0);
   };
   
   // Reset all data
@@ -3149,10 +3152,27 @@ export default function KasirApp() {
   }
   
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-md flex flex-col">
-        <div className="p-4 border-b border-gray-200">
+    <div className="min-h-screen bg-gray-100 flex flex-col md:flex-row">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-white shadow-md p-4 flex justify-between items-center">
+        <h1 className="text-xl font-bold text-gray-800">Cashier Apps V1</h1>
+        <button 
+          className="text-gray-500 hover:text-gray-700 focus:outline-none"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {mobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
+      
+      {/* Sidebar - Hidden on mobile when menu is closed */}
+      <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block w-full md:w-64 bg-white shadow-md flex flex-col z-10 fixed md:static inset-y-0 left-0 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out`}>
+        <div className="p-4 border-b border-gray-200 hidden md:block">
           <h1 className="text-xl font-bold text-gray-800">Cashier Apps V1</h1>
           <p className="text-sm text-gray-600">Create By Sean Michael 2025</p>
         </div>
@@ -3167,7 +3187,10 @@ export default function KasirApp() {
                       ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600'
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setMobileMenuOpen(false); // Close menu after selection on mobile
+                  }}
                 >
                   <span className="mr-3 text-lg">{item.icon}</span>
                   <span>{item.label}</span>
@@ -3204,7 +3227,7 @@ export default function KasirApp() {
             >
               Export Excel
             </button>
-            <label className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 px-3 rounded-md transition text-sm cursor-pointer text-center">
+            <label className="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 px-3 rounded-md transition cursor-pointer text-center">
               Import
               <input 
                 type="file" 
@@ -3223,6 +3246,14 @@ export default function KasirApp() {
           </button>
         </div>
       </div>
+      
+      {/* Overlay for mobile menu */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-0 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        ></div>
+      )}
       
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
@@ -5424,7 +5455,7 @@ export default function KasirApp() {
                         <div className="text-sm text-gray-500">Total Daya</div>
                         <div className="text-xl font-bold">{electricityUsage.totalPower} W</div>
                         <div className="text-sm text-gray-500 mt-1">
-                          Batas Maks: {electricityUsage.maxPower} W
+                          Batas Maks: {electricityUsage.maxPower} 
                         </div>
                         <div className="mt-2">
                           <div className="w-full bg-gray-200 rounded-full h-2">
@@ -5525,7 +5556,7 @@ export default function KasirApp() {
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2">
-                    <h3 className="font-medium mb-2">Data Karyawan</h3>
+                    <h3 className="font-medium mb-4">Data Karyawan</h3>
                     
                     <div className="mb-4 p-4 bg-gray-50 rounded-md">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -6326,461 +6357,50 @@ export default function KasirApp() {
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="font-medium mb-2">Grafik Penjualan & Laba</h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-medium">Grafik Penjualan & Laba</h3>
+                    <div className="flex space-x-2">
+                      <button
+                        className={`px-3 py-1 text-sm rounded-md ${
+                          chartType === 'daily' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                        }`}
+                        onClick={() => handleChartTypeChange('daily')}
+                      >
+                        Harian
+                      </button>
+                      <button
+                        className={`px-3 py-1 text-sm rounded-md ${
+                          chartType === 'monthly' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                        }`}
+                        onClick={() => handleChartTypeChange('monthly')}
+                      >
+                        Bulanan
+                      </button>
+                      <button
+                        className={`px-3 py-1 text-sm rounded-md ${
+                          chartType === 'yearly' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                        }`}
+                        onClick={() => handleChartTypeChange('yearly')}
+                      >
+                        Tahunan
+                      </button>
+                    </div>
+                  </div>
                   
                   <div className="bg-white p-4 rounded-md shadow">
-                    <div className="mb-4">
-                      <div className="flex space-x-4">
-                        <button 
-                          className={`px-3 py-1 rounded-md text-sm ${chartType === 'daily' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                          onClick={() => handleChartTypeChange('daily')}
-                        >
-                          Harian
-                        </button>
-                        <button 
-                          className={`px-3 py-1 rounded-md text-sm ${chartType === 'monthly' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                          onClick={() => handleChartTypeChange('monthly')}
-                        >
-                          Bulanan
-                        </button>
-                        <button 
-                          className={`px-3 py-1 rounded-md text-sm ${chartType === 'yearly' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
-                          onClick={() => handleChartTypeChange('yearly')}
-                        >
-                          Tahunan
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div className="h-64">
+                    <div className="h-96">
                       <canvas ref={chartRef}></canvas>
                     </div>
                   </div>
                 </div>
                 
                 <div className="mt-6">
-                  <h3 className="font-medium mb-2">Detail Transaksi Hari Ini</h3>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Waktu</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Laba</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {dailyReport.transactions.map((transaction) => {
-                          // Calculate profit for this transaction
-                          let transactionCost = 0;
-                          if (transaction.items) {
-                            transaction.items.forEach(item => {
-                              const productCost = productCosts[item.id] || 0;
-                              transactionCost += productCost * (item.quantity || 0);
-                            });
-                          }
-                          const transactionProfit = (transaction.total || 0) - transactionCost;
-                          
-                          return (
-                            <tr key={transaction.id}>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">#{transaction.id}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">
-                                  {transaction.date ? new Date(transaction.date).toLocaleTimeString('id-ID') : ''}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <div className="text-sm text-gray-900">
-                                  {transaction.items ? transaction.items.map((item, index) => (
-                                    <div key={index}>{item.name} x{item.quantity || 0}</div>
-                                  )) : ''}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {formatCurrency(transaction.total || 0)}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className={`text-sm font-medium ${transactionProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                  {formatCurrency(transactionProfit)}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                        {dailyReport.transactions.length === 0 && (
-                          <tr>
-                            <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
-                              Tidak ada transaksi hari ini
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <h3 className="font-medium mb-2">Laba Rugi per Produk</h3>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Produk</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga Jual</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HPP</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Laba per Unit</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin Laba</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Terjual</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Laba</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {products.map((product) => {
-                          const cost = productCosts[product.id] || 0;
-                          const profit = (product.price || 0) - cost;
-                          const profitMargin = (product.price || 0) > 0 ? (profit / (product.price || 0)) * 100 : 0;
-                          
-                          // Calculate total sold from transactions
-                          const transactions = StorageManager.get('kasir_transactions') || [];
-                          let totalSold = 0;
-                          transactions.forEach(transaction => {
-                            if (transaction.items) {
-                              const item = transaction.items.find(i => i.id === product.id);
-                              if (item) {
-                                totalSold += (item.quantity || 0);
-                              }
-                            }
-                          });
-                          
-                          const totalProfit = profit * totalSold;
-                          
-                          return (
-                            <tr key={product.id}>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{formatCurrency(product.price || 0)}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{formatCurrency(cost)}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className={`text-sm font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                  {formatCurrency(profit)}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className={`text-sm font-medium ${profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                  {profitMargin.toFixed(1)}%
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="text-sm text-gray-900">{totalSold}</div>
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className={`text-sm font-medium ${totalProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                  {formatCurrency(totalProfit)}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <h3 className="font-medium mb-2">Laporan Keuangan (Bulan Ini)</h3>
+                  <h3 className="font-medium mb-4">Pengeluaran per Kategori</h3>
                   
                   <div className="bg-white p-4 rounded-md shadow">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-medium mb-2">Laporan Laba Rugi</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-sm">Penjualan</span>
-                            <span className="text-sm">{formatCurrency(monthlyReport.totalSales)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">HPP</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.totalCost)})</span>
-                          </div>
-                          <div className="flex justify-between font-medium">
-                            <span className="text-sm">Laba Kotor</span>
-                            <span className="text-sm">{formatCurrency(monthlyReport.grossProfit)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Pengeluaran Operasional</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.monthlyExpenses)})</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Biaya Akomodasi</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.monthlyAccommodation)})</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Depresiasi</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.monthlyDepreciation)})</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Gaji Karyawan</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.monthlySalaries)})</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Pembayaran Hutang</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.monthlyDebtPayments)})</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Penerimaan Piutang</span>
-                            <span className="text-sm">({formatCurrency(monthlyReport.monthlyReceivableCollections)})</span>
-                          </div>
-                          <div className="flex justify-between font-bold border-t border-gray-200 pt-1 mt-1">
-                            <span className="text-sm">Laba Bersih</span>
-                            <span className={`text-sm ${monthlyReport.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {formatCurrency(monthlyReport.netProfit)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-2">Laporan Posisi Keuangan</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-sm">Aset</span>
-                            <span className="text-sm">{formatCurrency(
-                              assets.reduce((sum, asset) => {
-                                const depreciation = calculateDepreciation(asset, new Date().toISOString().split('T')[0]);
-                                return sum + depreciation.remaining;
-                              }, 0)
-                            )}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-sm">Kewajiban</span>
-                            <span className="text-sm">{formatCurrency(
-                              calculateUnpaidDebts() + calculateUnpaidSalaries()
-                            )}</span>
-                          </div>
-                          <div className="flex justify-between font-medium border-t border-gray-200 pt-1 mt-1">
-                            <span className="text-sm">Ekuitas</span>
-                            <span className="text-sm">{formatCurrency(
-                              assets.reduce((sum, asset) => {
-                                const depreciation = calculateDepreciation(asset, new Date().toISOString().split('T')[0]);
-                                return sum + depreciation.remaining;
-                              }, 0) - (calculateUnpaidDebts() + calculateUnpaidSalaries())
-                            )}</span>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="h-96">
+                      <canvas ref={chartRef}></canvas>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="mt-6">
-                  <h3 className="font-medium mb-2">Pembagian Laba (Bulan Ini)</h3>
-                  
-                  {monthlyReport.profitDistribution ? (
-                    <div className="bg-white p-4 rounded-md shadow">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div className="bg-blue-50 p-4 rounded-md">
-                          <div className="text-sm text-blue-600 mb-1">Bagian Usaha</div>
-                          <div className="text-xl font-bold text-blue-800">
-                            {formatCurrency(monthlyReport.profitDistribution.businessAmount)}
-                          </div>
-                          <div className="text-xs text-blue-600 mt-1">
-                            {profitDistribution.businessPercentage}% dari laba bersih
-                          </div>
-                        </div>
-                        
-                        <div className="bg-green-50 p-4 rounded-md">
-                          <div className="text-sm text-green-600 mb-1">Simpanan Usaha</div>
-                          <div className="text-xl font-bold text-green-800">
-                            {formatCurrency(monthlyReport.profitDistribution.businessSavingsAmount)}
-                          </div>
-                          <div className="text-xs text-green-600 mt-1">
-                            {profitDistribution.businessSavingsPercentage}% dari bagian usaha
-                          </div>
-                        </div>
-                        
-                        <div className="bg-purple-50 p-4 rounded-md">
-                          <div className="text-sm text-purple-600 mb-1">Bagian Founder</div>
-                          <div className="text-xl font-bold text-purple-800">
-                            {formatCurrency(monthlyReport.profitDistribution.founderAmount)}
-                          </div>
-                          <div className="text-xs text-purple-600 mt-1">
-                            {profitDistribution.founderPercentage}% dari laba bersih
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-2">Rincian Pembagian Founder</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {monthlyReport.profitDistribution.founderShares.map((founder, index) => (
-                            <div key={index} className="bg-white p-3 rounded-md shadow-sm">
-                              <div className="flex justify-between">
-                                <span className="font-medium">{founder.name}</span>
-                                <span>{formatCurrency(founder.amount)}</span>
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {founder.percentage.toFixed(2)}% dari bagian founder
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <h4 className="font-medium mb-2">Profit Distribution Settings</h4>
-                        <div className="bg-gray-50 p-4 rounded-md">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm">Bagian Usaha:</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  className="w-20 rounded-md border border-gray-300 py-1 px-2 text-sm"
-                                  value={profitDistribution.businessPercentage}
-                                  onChange={(e) => updateProfitDistribution('businessPercentage', Number(e.target.value))}
-                                />
-                                <span className="text-sm ml-1">%</span>
-                              </div>
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm">Bagian Founder:</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  className="w-20 rounded-md border border-gray-300 py-1 px-2 text-sm"
-                                  value={profitDistribution.founderPercentage}
-                                  onChange={(e) => updateProfitDistribution('founderPercentage', Number(e.target.value))}
-                                />
-                                <span className="text-sm ml-1">%</span>
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm">Simpanan Usaha:</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  className="w-20 rounded-md border border-gray-300 py-1 px-2 text-sm"
-                                  value={profitDistribution.businessSavingsPercentage}
-                                  onChange={(e) => updateProfitDistribution('businessSavingsPercentage', Number(e.target.value))}
-                                />
-                                <span className="text-sm ml-1">%</span>
-                              </div>
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm">Operasional Usaha:</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="100"
-                                  className="w-20 rounded-md border border-gray-300 py-1 px-2 text-sm"
-                                  value={profitDistribution.businessOperationalPercentage}
-                                  onChange={(e) => updateProfitDistribution('businessOperationalPercentage', Number(e.target.value))}
-                                />
-                                <span className="text-sm ml-1">%</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-3 text-xs text-gray-500">
-                            Total persentase harus 100%
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 flex justify-end">
-                        <button
-                          className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition"
-                          onClick={() => {
-                            if (monthlyReport.netProfit > 0) {
-                              const distribution = distributeProfit(
-                                new Date().toISOString().split('T')[0],
-                                monthlyReport.netProfit
-                              );
-                              alert('Pembagian laba berhasil dicatat!');
-                            } else {
-                              alert('Tidak dapat membagi laba karena laba bersih negatif atau nol!');
-                            }
-                          }}
-                        >
-                          Catat Pembagian Laba
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-white p-4 rounded-md shadow">
-                      <p className="text-gray-500 text-center py-4">
-                        Tidak ada laba untuk dibagikan bulan ini
-                      </p>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="mt-6">
-                  <h3 className="font-medium mb-2">Catatan Keuangan</h3>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {financialRecords.slice(-10).map((record) => (
-                          <tr key={record.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{formatDate(record.date)}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
-                                {record.type === 'expense' ? 'Pengeluaran' : 
-                                 record.type === 'profit_distribution' ? 'Pembagian Laba' : 
-                                 record.type === 'debt' ? 'Hutang' :
-                                 record.type === 'receivable' ? 'Piutang' :
-                                 record.type}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{record.category}</div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="text-sm text-gray-900">{record.description}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className={`text-sm font-medium ${record.amount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {formatCurrency(record.amount)}
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                        {financialRecords.length === 0 && (
-                          <tr>
-                            <td colSpan="5" className="px-6 py-4 text-center text-sm text-gray-500">
-                              Belum ada catatan keuangan
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
                   </div>
                 </div>
               </div>
@@ -6796,7 +6416,7 @@ export default function KasirApp() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium">
-                  Kelola Kategori {categoryType === 'expense' ? 'Pengeluaran' : 'Aset'}
+                  Kelola {categoryType === 'expense' ? 'Kategori Pengeluaran' : 'Kategori Aset'}
                 </h3>
                 <button
                   className="text-gray-500 hover:text-gray-700"
@@ -6807,10 +6427,13 @@ export default function KasirApp() {
               </div>
               
               <div className="mb-4">
-                <div className="flex gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tambah Kategori Baru
+                </label>
+                <div className="flex space-x-2">
                   <input
                     type="text"
-                    placeholder={`Nama kategori ${categoryType === 'expense' ? 'pengeluaran' : 'aset'} baru`}
+                    placeholder="Nama kategori"
                     className="flex-1 rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
@@ -6824,48 +6447,39 @@ export default function KasirApp() {
                 </div>
               </div>
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategori</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {(categoryType === 'expense' ? expenseCategories : assetCategories).map((category, index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">{category}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            className="text-yellow-600 hover:text-yellow-900 mr-3"
-                            onClick={() => {
-                              const newName = prompt('Edit nama kategori:', category);
-                              if (newName && newName.trim() !== '') {
-                                updateCategory(category, newName.trim());
-                              }
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="text-red-600 hover:text-red-900"
-                            onClick={() => removeCategory(category)}
-                          >
-                            Hapus
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mb-4">
+                <h4 className="font-medium mb-2">Daftar Kategori</h4>
+                <div className="bg-gray-50 rounded-md max-h-60 overflow-y-auto">
+                  {(categoryType === 'expense' ? expenseCategories : assetCategories).map((category, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 border-b border-gray-200">
+                      <span>{category}</span>
+                      <div className="flex space-x-2">
+                        <button
+                          className="text-yellow-600 hover:text-yellow-900"
+                          onClick={() => {
+                            const newCatName = prompt('Edit nama kategori:', category);
+                            if (newCatName && newCatName.trim() !== '') {
+                              updateCategory(category, newCatName.trim());
+                            }
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="text-red-600 hover:text-red-900"
+                          onClick={() => removeCategory(category)}
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
               
-              <div className="mt-6 flex justify-end">
+              <div className="flex justify-end">
                 <button
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                   onClick={() => setShowCategoryManagement(false)}
                 >
                   Tutup
@@ -6879,10 +6493,10 @@ export default function KasirApp() {
       {/* Salary Increase Modal */}
       {showSalaryIncreaseModal && selectedEmployee && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">Simulasi Kenaikan Gaji - {selectedEmployee.name}</h3>
+                <h3 className="text-lg font-medium">Simulasi Kenaikan Gaji</h3>
                 <button
                   className="text-gray-500 hover:text-gray-700"
                   onClick={() => setShowSalaryIncreaseModal(false)}
@@ -6892,91 +6506,121 @@ export default function KasirApp() {
               </div>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Gaji Pokok Baru</label>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Karyawan</span>
+                  <span className="font-medium">{selectedEmployee.name}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Jabatan</span>
+                  <span className="font-medium">{selectedEmployee.position}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Gaji Saat Ini</span>
+                  <span className="font-medium">{formatCurrency(selectedEmployee.baseSalary || 0)}</span>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gaji Baru
+                </label>
                 <input
                   type="text"
                   className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formatCurrencyInput(newSalary)}
-                  onChange={(e) => setNewSalary(parseCurrencyInput(e.target.value))}
+                  onChange={(e) => {
+                    const value = parseCurrencyInput(e.target.value);
+                    setNewSalary(value);
+                    
+                    if (salaryImpact) {
+                      const currentSalary = calculateSalary(selectedEmployee);
+                      const newTotalSalary = value + (selectedEmployee.allowances || 0) - (selectedEmployee.deductions || 0);
+                      const difference = newTotalSalary - currentSalary;
+                      
+                      setSalaryImpact({
+                        ...salaryImpact,
+                        newTotalSalary,
+                        difference,
+                        monthlyImpact: difference,
+                        yearlyImpact: difference * 12,
+                        profitImpact: difference * 10
+                      });
+                    }
+                  }}
                 />
               </div>
               
               {salaryImpact && (
-                <div className="mb-4 p-4 bg-blue-50 rounded-md">
-                  <h4 className="font-medium text-blue-800 mb-2">Dampak Keuangan</h4>
-                  <div className="space-y-2 text-sm">
+                <div className="mb-4 p-3 bg-blue-50 rounded-md">
+                  <h4 className="font-medium text-blue-800 mb-2">Dampak Kenaikan Gaji</h4>
+                  <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>Gaji Saat Ini:</span>
-                      <span>{formatCurrency(salaryImpact.currentSalary)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Gaji Baru:</span>
-                      <span>{formatCurrency(salaryImpact.newTotalSalary)}</span>
-                    </div>
-                    <div className="flex justify-between font-medium">
-                      <span>Selisih:</span>
-                      <span className={salaryImpact.difference >= 0 ? 'text-green-600' : 'text-red-600'}>
+                      <span className="text-gray-600">Selisih Gaji:</span>
+                      <span className={`font-medium ${salaryImpact.difference >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {formatCurrency(salaryImpact.difference)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Dampak Bulanan:</span>
-                      <span className={salaryImpact.monthlyImpact >= 0 ? 'text-red-600' : 'text-green-600'}>
+                      <span className="text-gray-600">Dampak Bulanan:</span>
+                      <span className={`font-medium ${salaryImpact.monthlyImpact >= 0 ? 'text-red-600' : 'text-green-600'}`}>
                         {formatCurrency(salaryImpact.monthlyImpact)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Dampak Tahunan:</span>
-                      <span className={salaryImpact.yearlyImpact >= 0 ? 'text-red-600' : 'text-green-600'}>
+                      <span className="text-gray-600">Dampak Tahunan:</span>
+                      <span className={`font-medium ${salaryImpact.yearlyImpact >= 0 ? 'text-red-600' : 'text-green-600'}`}>
                         {formatCurrency(salaryImpact.yearlyImpact)}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Dampak pada Laba (10% margin):</span>
-                      <span className={salaryImpact.profitImpact >= 0 ? 'text-green-600' : 'text-red-600'}>
+                      <span className="text-gray-600">Dampak pada Laba (10% margin):</span>
+                      <span className={`font-medium ${salaryImpact.profitImpact >= 0 ? 'text-red-600' : 'text-green-600'}`}>
                         {formatCurrency(salaryImpact.profitImpact)}
                       </span>
                     </div>
                   </div>
                 </div>
               )}
+              
               <div className="flex justify-end space-x-3">
-                    <button
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                      onClick={() => setShowSalaryIncreaseModal(false)}
-                    >
-                      Batal
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                      onClick={confirmSalaryIncrease}
-                    >
-                      Konfirmasi Kenaikan Gaji
-                    </button>
-                  </div>
-                </div>
+                <button
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  onClick={() => setShowSalaryIncreaseModal(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  onClick={confirmSalaryIncrease}
+                >
+                  Konfirmasi Kenaikan Gaji
+                </button>
               </div>
             </div>
-          )}
-          
-          {/* Work History Modal */}
-          {showWorkHistoryModal && selectedEmployee && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium">Riwayat Kerja - {selectedEmployee.name}</h3>
-                    <button
-                      className="text-gray-500 hover:text-gray-700"
-                      onClick={() => setShowWorkHistoryModal(false)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  
-                  <div className="mb-4 p-4 bg-gray-50 rounded-md">
-                    <h4 className="font-medium mb-2">Tambah Catatan Kerja</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          </div>
+        </div>
+      )}
+      
+      {/* Work History Modal */}
+      {showWorkHistoryModal && selectedEmployee && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-medium">Riwayat Kerja - {selectedEmployee.name}</h3>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowWorkHistoryModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-medium mb-3">Tambah Catatan Kerja</h4>
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <div className="grid grid-cols-1 gap-3">
                       <div>
                         <label className="block text-sm text-gray-600 mb-1">Tanggal</label>
                         <input
@@ -7008,133 +6652,133 @@ export default function KasirApp() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-gray-600 mb-1">Total</label>
-                        <div className="w-full rounded-md border border-gray-300 bg-gray-100 py-2 px-3 text-sm">
-                          {formatCurrency(newWorkRecord.hours * newWorkRecord.hourlyRate)}
-                        </div>
+                        <label className="block text-sm text-gray-600 mb-1">Deskripsi</label>
+                        <textarea
+                          className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          value={newWorkRecord.description}
+                          onChange={(e) => setNewWorkRecord({...newWorkRecord, description: e.target.value})}
+                          rows={2}
+                        />
                       </div>
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">Total Bayaran</label>
+                        <input
+                          type="text"
+                          readOnly
+                          className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm bg-gray-100"
+                          value={formatCurrency(newWorkRecord.hours * newWorkRecord.hourlyRate)}
+                        />
+                      </div>
+                      <button
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition w-full"
+                        onClick={() => {
+                          if (newWorkRecord.date && newWorkRecord.hours > 0 && newWorkRecord.hourlyRate > 0) {
+                            addWorkRecord(selectedEmployee.id, newWorkRecord);
+                            setSelectedEmployeeHistory(getEmployeeWorkHistory(selectedEmployee.id));
+                            setNewWorkRecord({
+                              date: new Date().toISOString().split('T')[0],
+                              hours: 0,
+                              hourlyRate: selectedEmployee.hourlyRate || 0,
+                              description: ''
+                            });
+                          }
+                        }}
+                      >
+                        Tambah Catatan Kerja
+                      </button>
                     </div>
-                    <div className="mt-2">
-                      <label className="block text-sm text-gray-600 mb-1">Deskripsi</label>
-                      <input
-                        type="text"
-                        placeholder="Deskripsi pekerjaan"
-                        className="w-full rounded-md border border-gray-300 py-2 px-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        value={newWorkRecord.description}
-                        onChange={(e) => setNewWorkRecord({...newWorkRecord, description: e.target.value})}
-                      />
-                    </div>
-                    <button
-                      className="mt-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition"
-                      onClick={() => {
-                        if (newWorkRecord.hours > 0 && newWorkRecord.hourlyRate > 0) {
-                          addWorkRecord(selectedEmployee.id, newWorkRecord);
-                          setNewWorkRecord({
-                            date: new Date().toISOString().split('T')[0],
-                            hours: 0,
-                            hourlyRate: selectedEmployee.hourlyRate || 0,
-                            description: ''
-                          });
-                          setSelectedEmployeeHistory(getEmployeeWorkHistory(selectedEmployee.id));
-                        }
-                      }}
-                    >
-                      Tambah Catatan
-                    </button>
                   </div>
-                  
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam Kerja</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bayaran per Jam</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {selectedEmployeeHistory.map((record) => (
-                          <tr key={record.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{formatDate(record.date)}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{record.hours} jam</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{formatCurrency(record.hourlyRate)}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{formatCurrency(record.hours * record.hourlyRate)}</div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="text-sm text-gray-900">{record.description}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                className="text-red-600 hover:text-red-900"
-                                onClick={() => removeWorkRecord(record.id)}
-                              >
-                                Hapus
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                        {selectedEmployeeHistory.length === 0 && (
+                </div>
+                
+                <div>
+                  <h4 className="font-medium mb-3">Riwayat Kerja</h4>
+                  <div className="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto">
+                    {selectedEmployeeHistory.length > 0 ? (
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
                           <tr>
-                            <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
-                              Belum ada riwayat kerja
-                            </td>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jam</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bayaran</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {selectedEmployeeHistory.map((record) => (
+                            <tr key={record.id}>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                {formatDate(record.date)}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                {record.hours} jam
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                {formatCurrency(record.hourlyRate)}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                                {formatCurrency(record.hours * record.hourlyRate)}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm font-medium">
+                                <button
+                                  className="text-red-600 hover:text-red-900"
+                                  onClick={() => removeWorkRecord(record.id)}
+                                >
+                                  Hapus
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <p className="text-gray-500 text-center py-4">Belum ada riwayat kerja</p>
+                    )}
                   </div>
                   
-                  <div className="mt-4 p-4 bg-blue-50 rounded-md">
-                    <h4 className="font-medium text-blue-800 mb-2">Ringkasan Pembayaran</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="mt-4 bg-blue-50 p-3 rounded-md">
+                    <h4 className="font-medium text-blue-800 mb-2">Total Pendapatan</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <div className="text-sm text-blue-600">Total Jam Kerja</div>
-                        <div className="text-lg font-bold text-blue-800">
-                          {selectedEmployeeHistory.reduce((sum, record) => sum + record.hours, 0)} jam
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-blue-600">Total Pembayaran</div>
-                        <div className="text-lg font-bold text-blue-800">
+                        <span className="text-gray-600">Bulan Ini:</span>
+                        <div className="font-medium">
                           {formatCurrency(
-                            selectedEmployeeHistory.reduce((sum, record) => sum + (record.hours * record.hourlyRate), 0)
+                            calculateEmployeeMonthlyEarnings(
+                              selectedEmployee.id, 
+                              new Date().getFullYear(), 
+                              new Date().getMonth()
+                            )
                           )}
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm text-blue-600">Rata-rata per Jam</div>
-                        <div className="text-lg font-bold text-blue-800">
+                        <span className="text-gray-600">Total Semua:</span>
+                        <div className="font-medium">
                           {formatCurrency(
-                            selectedEmployeeHistory.length > 0
-                              ? selectedEmployeeHistory.reduce((sum, record) => sum + record.hourlyRate, 0) / selectedEmployeeHistory.length
-                              : 0
+                            selectedEmployeeHistory.reduce(
+                              (sum, record) => sum + (record.hours * record.hourlyRate), 
+                              0
+                            )
                           )}
                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                      onClick={() => setShowWorkHistoryModal(false)}
-                    >
-                      Tutup
-                    </button>
                   </div>
                 </div>
               </div>
+              
+              <div className="flex justify-end mt-6">
+                <button
+                  className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+                  onClick={() => setShowWorkHistoryModal(false)}
+                >
+                  Tutup
+                </button>
+              </div>
             </div>
-          )}
+          </div>
+        </div>
+      )}
     </div>
-)}
+  );
+}
